@@ -10,14 +10,14 @@ import (
 // Refined abstraction of the base class (Abstraction from GoF)
 type TimerReader struct {
 	marketProvider market_data_source.IMarketDataSource
-	commsChannel   chan string
+	commsChannel   chan []market_data_source.FxPriceDetails
 	quitChannel    chan int
 }
 
 // Used to initialise the inter-process communication channels.
 // This may not be required if the esign calls for all GetFxPricing to be used as a go routine.
 // In which case the channel initialisers move into the base class.
-func (r *TimerReader) Initialise(c chan string, quit chan int) {
+func (r *TimerReader) Initialise(c chan []market_data_source.FxPriceDetails, quit chan int) {
 	r.commsChannel = c
 	r.quitChannel = quit
 }
@@ -46,10 +46,12 @@ func (r *TimerReader) GetFxPricing(currencies []string) {
 				continue
 			case <-r.quitChannel: // Check if a quit signal has been received. If so, tell the main loop that all thread-termination steps are done..
 				fmt.Printf("Received QUIT signal.\n")
-				r.commsChannel <- "done"
+				// r.commsChannel <- "done"
 				return
 			}
 		}
 		fmt.Printf("ERROR: quoteGetter() exiting the thread incorrectly")
 	}
+
+	return
 }

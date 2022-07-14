@@ -14,8 +14,8 @@ func main() {
 
 	// Set up a channel for handling Ctrl-C, etc
 	sigchan := make(chan os.Signal, 1)
-	c := make(chan string) // Channel for passing pricing information
-	quit := make(chan int) // Channel for sending quit signals.
+	c := make(chan []market_data_source.FxPriceDetails) // Channel for passing pricing information
+	quit := make(chan int)                              // Channel for sending quit signals.
 	defer close(sigchan)
 	defer close(c)
 	defer close(quit)
@@ -28,7 +28,7 @@ func main() {
 	//TODO: Move this to a test case. Delete once the readers are working.
 	testWriter(publisher)
 
-	currencies := []string{"AUD", "NZD"} // TODO: Replace this with currencies from a config file.
+	currencies := []string{"AUD", "NZD", "EUR", "GBP"} // TODO: Replace this with currencies from a config file.
 
 	// Start the reader thread
 	reader.Initialise(c, quit)
@@ -42,18 +42,18 @@ func main() {
 			fmt.Printf("Caught signal %v: terminating\n", sig)
 			run = false
 		default:
-			m := <-c // Test the channel to see if the price getter has retrieved a quote
-			if m != "" {
-				fmt.Printf("%s\n", m)
+			m := <-c      // Test the channel to see if the price getter has retrieved a quote
+			if m != nil { // []market_data_source.FxPriceDetails{}????
+				fmt.Printf("Quote Details:\n%s\n", m)
 			}
 		}
 	}
 	quit <- 0 // Send a quit signal
 
 	// Wait for clean termination response from the thread.
-	for q := <-c; q != "done"; {
-		continue
-	}
+	// for q := <-c; q != "done"; {
+	// 	continue
+	// }
 	fmt.Printf("Received clean termination signal from all threads.\n")
 	fmt.Printf("Exiting")
 

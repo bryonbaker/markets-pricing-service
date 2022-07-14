@@ -7,19 +7,30 @@ import (
 type MarketSimulator struct {
 }
 
-func (r *MarketSimulator) GetFxPricing(currencies []string) string {
+func (r *MarketSimulator) GetFxPricing(currencies []string) []FxPriceDetails {
 	fmt.Println("GetFxPricing() requested for MarketSimulator")
 
-	var jsonString = `{ "AUD_USD" : {
-		"ask": "0.76894",
-		"bid": "0.76881",
-		"date": "2022-04-19T23:59:59+0000",
-		"high_ask": "0.77038",
-		"high_bid": "0.77027",
-		"low_ask": "0.76688",
-		"low_bid": "0.76675",
-		"midpoint": "0.76888"
-	} }`
+	// Initialise a price list array that is the length of the currencies list
+	var priceList = make([]FxPriceDetails, len(currencies))
 
-	return jsonString
+	var dummyPrice FxPriceDetails
+
+	dummyPrice.BaseCurrency = "USD"
+	dummyPrice.Currency = "undefined"
+	dummyPrice.Ask = "0.72894"
+	dummyPrice.Bid = "0.72890"
+	dummyPrice.Date = "2022-04-19T23:59:59+0000"
+	dummyPrice.HighAsk = "0.76038"
+	dummyPrice.HighBid = "0.75027"
+	dummyPrice.LowAsk = "0.75688"
+	dummyPrice.LowBid = "0.75675"
+	dummyPrice.Midpoint = "0.75888"
+
+	for i, c := range currencies {
+		// fmt.Printf("Replace this with populating the response:  i = %d, c = %s\n", i, c)
+		dummyPrice.Currency = c
+		priceList[i] = dummyPrice
+	}
+
+	return priceList
 }

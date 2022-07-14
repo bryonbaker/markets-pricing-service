@@ -5,6 +5,6 @@ import (
 )
 
 type IMarketReader interface {
-	GetFxPricing(c chan string, quit chan int, currencies []string)
+	GetFxPricing(c chan []market_data_source.FxPriceDetails, quit chan int, currencies []string) []market_data_source.FxPriceDetails
 	SetMarketProvider(market_data_source.IMarketDataSource)
 }
