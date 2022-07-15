@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"os-climate.org/market-pricing/pkg/market_data_publisher"
 	"os-climate.org/market-pricing/pkg/market_data_source"
@@ -25,9 +26,6 @@ func main() {
 	publisher := &market_data_publisher.ConsolePublisher{}
 	reader.SetMarketProvider(dataSource)
 
-	//TODO: Move this to a test case. Delete once the readers are working.
-	testWriter(publisher)
-
 	currencies := []string{"AUD", "NZD", "EUR", "GBP"} // TODO: Replace this with currencies from a config file.
 
 	// Start the reader thread
@@ -44,7 +42,7 @@ func main() {
 		default:
 			m := <-c // Test the channel to see if the price getter has retrieved a quote
 			if m != "" {
-				fmt.Printf("Quote Details:\n%s\n", m)
+				SendToPublisher(publisher, m)
 			}
 		}
 	}
@@ -60,36 +58,15 @@ func main() {
 	return
 }
 
-// This function is used to test the publisher. This should get moved to a test case.
-func testWriter(publisher *market_data_publisher.ConsolePublisher) {
-	// var price market_data_publisher.FxPrice
-	// var prices []market_data_publisher.FxPrice
+// Send the key/value to the instantiated Market Data Publisher
+func SendToPublisher(publisher *market_data_publisher.ConsolePublisher, priceData string) {
+	arr := strings.SplitN(priceData, ",", 2)
 
-	// price.BaseCurrency = "USD"
-	// price.Currency = "AUD"
-	// price.Ask = "0.76894"
-	// price.Bid = "0.76881"
-	// price.Date = "2022-04-19T23:59:59+0000"
-	// price.HighAsk = "0.77038"
-	// price.HighBid = "0.77027"
-	// price.LowAsk = "0.76688"
-	// price.LowBid = "0.76675"
-	// price.Midpoint = "0.76888"
+	// Check the data is formatted properly
+	if len(arr) == 2 {
+		publisher.PublishPricingData(arr[0], arr[1])
+	} else {
+		fmt.Printf("ERROR: Badly formatted data in SendToPublisher. No comma separater: %s", priceData)
+	}
 
-	// prices = append(prices, price)
-
-	// price.BaseCurrency = "USD"
-	// price.Currency = "NZD"
-	// price.Ask = "0.72894"
-	// price.Bid = "0.72890"
-	// price.Date = "2022-04-19T23:59:59+0000"
-	// price.HighAsk = "0.76038"
-	// price.HighBid = "0.75027"
-	// price.LowAsk = "0.75688"
-	// price.LowBid = "0.75675"
-	// price.Midpoint = "0.75888"
-
-	// prices = append(prices, price)
-
-	publisher.PublishPricingData("Test message")
 }

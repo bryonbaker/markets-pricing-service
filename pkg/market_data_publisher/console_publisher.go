@@ -7,16 +7,8 @@ import (
 type ConsolePublisher struct {
 }
 
-func (p *ConsolePublisher) PublishPricingData(data string) {
+func (p *ConsolePublisher) PublishPricingData(key string, data string) {
 	fmt.Printf("ConsolePublisher::PublishPricingData()\n")
 
-	fmt.Printf("%s\n", data)
-	// for _, v := range prices {
-	// 	// Marshall the structure into JSON
-	// 	var key string = v.BaseCurrency + "_" + v.Currency
-	// 	value, _ := json.Marshal(v)
-
-	// 	fmt.Printf("Key: %s\n", key)
-	// 	fmt.Printf("Value: %s\n", value)
-	// }
+	fmt.Printf("Key: %s\nData: %s\n", key, data)
 }
