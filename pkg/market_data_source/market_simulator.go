@@ -1,20 +1,36 @@
 package market_data_source
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
 type MarketSimulator struct {
 }
 
+// The  structure that dummy market data should be returned in.
+type MockFxProviderResponse struct {
+	Currency     string `json:"currency"`
+	BaseCurrency string `json:"base_currency"`
+	Ask          string `json:"ask"`
+	Bid          string `json:"bid"`
+	Date         string `json:"date"`
+	HighAsk      string `json:"high_ask"`
+	HighBid      string `json:"high_bid"`
+	LowAsk       string `json:"low_ask"`
+	LowBid       string `json:"low_bid"`
+	Midpoint     string `json:"midpoint"`
+}
+
+type MockFxProviderResponseList []MockFxProviderResponse
+
 func (r *MarketSimulator) GetFxPricing(currencies []string) []FxPriceDetails {
 	fmt.Println("GetFxPricing() requested for MarketSimulator")
 
-	// Initialise a price list array that is the length of the currencies list
-	var priceList = make([]FxPriceDetails, len(currencies))
+	var mockResponses []FxPriceDetails
+	var dummyPrice MockFxProviderResponse
 
-	var dummyPrice FxPriceDetails
-
+	// Set up the standard dataset for the simulation
 	dummyPrice.BaseCurrency = "USD"
 	dummyPrice.Currency = "undefined"
 	dummyPrice.Ask = "0.72894"
@@ -26,11 +42,20 @@ func (r *MarketSimulator) GetFxPricing(currencies []string) []FxPriceDetails {
 	dummyPrice.LowBid = "0.75675"
 	dummyPrice.Midpoint = "0.75888"
 
-	for i, c := range currencies {
-		// fmt.Printf("Replace this with populating the response:  i = %d, c = %s\n", i, c)
+	for _, c := range currencies {
+		var mockPrice FxPriceDetails
+
 		dummyPrice.Currency = c
-		priceList[i] = dummyPrice
+		// TODO: Add noise to the values over time.
+
+		mockPrice.Fx_key = dummyPrice.BaseCurrency + "_" + dummyPrice.Currency
+
+		// Convert to json
+		jsonPrice, _ := json.Marshal(dummyPrice)
+		mockPrice.Provider_resp = string(jsonPrice)
+
+		mockResponses = append(mockResponses, mockPrice)
 	}
 
-	return priceList
+	return mockResponses
 }
