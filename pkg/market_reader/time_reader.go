@@ -41,15 +41,22 @@ func (r *TimerReader) GetFxPricing(currencies []string) {
 		for _ = range ticker.C {
 			resp := r.marketProvider.GetFxPricing(currencies)
 
-			select {
-			case r.commsChannel <- resp: // Send the pricing info to the main loop via the pricing channel.
-				continue
-			case <-r.quitChannel: // Check if a quit signal has been received. If so, tell the main loop that all thread-termination steps are done..
-				fmt.Printf("Received QUIT signal.\n")
-				r.commsChannel <- "done"
-				return
+			// For each returned price, send the
+			for _, v := range resp {
+				priceData := v.Fx_key + "," + v.Provider_resp // Comma-separated header
+
+				select {
+				case r.commsChannel <- priceData: // Send the pricing info to the main loop via the pricing channel.
+					continue
+				case <-r.quitChannel: // Check if a quit signal has been received. If so, tell the main loop that all thread-termination steps are done..
+					fmt.Printf("Received QUIT signal.\n")
+					r.commsChannel <- "done"
+					return
+				}
 			}
 		}
 		fmt.Printf("ERROR: quoteGetter() exiting the thread incorrectly")
 	}
+
+	return
 }
