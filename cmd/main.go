@@ -13,6 +13,11 @@ import (
 func main() {
 	fmt.Println("Initialising...")
 
+	// Create a function thaty will be called on program exit so you cam close file handles etc.
+	defer func() {
+		cleanup()
+	}()
+
 	// Set up a channel for handling Ctrl-C, etc
 	sigchan := make(chan os.Signal, 1)
 	c := make(chan string) // Channel for passing pricing information
@@ -21,10 +26,15 @@ func main() {
 	defer close(c)
 	defer close(quit)
 
+	// Instantiate and initialise the Market Reader(s)
 	reader := &market_reader.TimerReader{}
 	dataSource := &market_data_source.MarketSimulator{}
-	publisher := &market_data_publisher.ConsolePublisher{}
 	reader.SetMarketProvider(dataSource)
+
+	// Instantiate and initialise the Market Publisher(s)
+	// publisher := &market_data_publisher.ConsolePublisher{}
+	publisher := &market_data_publisher.KafkaPublisher{}
+	publisher.Initialise()
 
 	currencies := []string{"AUD", "NZD", "EUR", "GBP"} // TODO: Replace this with currencies from a config file.
 
@@ -59,8 +69,10 @@ func main() {
 }
 
 // Send the key/value to the instantiated Market Data Publisher
-func SendToPublisher(publisher *market_data_publisher.ConsolePublisher, priceData string) {
+func SendToPublisher(publisher market_data_publisher.IMarketDataPublisher, priceData string) {
 	arr := strings.SplitN(priceData, ",", 2)
+
+	// TODO: Iterate through the list of publishers
 
 	// Check the data is formatted properly
 	if len(arr) == 2 {
@@ -68,5 +80,10 @@ func SendToPublisher(publisher *market_data_publisher.ConsolePublisher, priceDat
 	} else {
 		fmt.Printf("ERROR: Badly formatted data in SendToPublisher. No comma separater: %s", priceData)
 	}
+
+}
+
+// Called on program exit. Place any cleanup functions here
+func cleanup() {
 
 }
