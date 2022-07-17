@@ -36,7 +36,7 @@ func main() {
 	publisher := &market_data_publisher.KafkaPublisher{}
 	publisher.Initialise()
 
-	currencies := []string{"AUD", "NZD", "EUR", "GBP"} // TODO: Replace this with currencies from a config file.
+	currencies := []string{"AUD", "CAD", "EUR", "JPY", "NZD", "NOK", "GBP", "SEK", "CHF"} // TODO: Replace this with currencies from a config file.
 
 	// Start the reader thread
 	reader.Initialise(c, quit)
