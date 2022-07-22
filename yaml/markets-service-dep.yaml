@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: market-pricing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: market-pricing
+  template:
+    metadata:
+      labels:
+        application: market-pricing
+    spec:
+      containers:
+      - name: market-pricing
+        image: quay.io/brbaker/market-pricing:v0.3
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config
+          mountPath: "/app/config"
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: kafka-properties  # Provide the name of the ConfigMap you want to mount.
+          items:                  # An array of keys from the ConfigMap to create as files
+          - key: "kafka.properties"
+            path: "kafka.properties"

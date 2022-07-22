@@ -13,12 +13,42 @@ type KafkaPublisher struct {
 
 var topic = "FX"
 var kafkaProducer *kafka.Producer
+var config kafka.ConfigMap
+
+// Maps the environment vairable to the kafka property
+var envMap = map[string]string{
+	"KAFKA_BOOTSTRAP_SERVERS": "bootstrap.servers",
+	"KAFKA_SECURITY_PROTOCOL": "security.protocol",
+	"KAFKA_SASL_MECHANISMS":   "sasl.mechanisms",
+	"KAFKA_SASL_USERNAME":     "sasl.username",
+	"KAFKA_SASL_PASSWORD":     "sasl.password",
+	"KAFKA_ACKS":              "acks",
+}
+
+// the config from environment variables and build the ConfigMap
+func LoadConfigFromEnvironment() kafka.ConfigMap {
+	config = make(kafka.ConfigMap)
+
+	fmt.Printf("Loading Kafka environment variables:\n")
+	for key, value := range envMap {
+		env := os.Getenv(key)
+		fmt.Printf("%s:%s\n", value, env)
+		if env == "" {
+			fmt.Printf("ERROR: Missing environment variable %s.\n", key)
+			os.Exit(-1)
+		}
+		config[value] = env
+	}
+
+	return config
+}
 
 // Load the configuration file and establish the connection to the broker.
 func (p *KafkaPublisher) Initialise() {
-	configFile := "./config/kafka.properties"
-	fmt.Printf("Reading config file from: %s\n", configFile)
-	conf := ReadConfig(configFile)
+	//configFile := "./config/kafka.properties"
+	//fmt.Printf("Reading config file from: %s\n", configFile)
+	// conf := ReadConfig(configFile)
+	conf := LoadConfigFromEnvironment()
 
 	var err error
 	kafkaProducer, err = kafka.NewProducer(&conf)
