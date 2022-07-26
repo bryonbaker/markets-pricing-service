@@ -45,10 +45,10 @@ func LoadConfigFromEnvironment() kafka.ConfigMap {
 
 // Load the configuration file and establish the connection to the broker.
 func (p *KafkaPublisher) Initialise() {
-	//configFile := "./config/kafka.properties"
-	//fmt.Printf("Reading config file from: %s\n", configFile)
-	// conf := ReadConfig(configFile)
-	conf := LoadConfigFromEnvironment()
+	configFile := "./config/kafka.properties"
+	fmt.Printf("Reading config file from: %s\n", configFile)
+	conf := ReadConfig(configFile)
+	// conf := LoadConfigFromEnvironment()
 
 	var err error
 	kafkaProducer, err = kafka.NewProducer(&conf)

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: market-pricing
-        image: quay.io/brbaker/market-pricing:v0.3
+        image: quay.io/brbaker/market-pricing:v0.3.2
         imagePullPolicy: Always
         volumeMounts:
         - name: config
